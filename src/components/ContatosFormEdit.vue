@@ -9,7 +9,7 @@
         
       </div>
     </div>
-    <form class="ContatosForm" @submit.prevent="Editar">
+    <form class="ContatosForm btn btn-secondary"  @submit.prevent="Editar">
       <div class="form-group col-sm-8">
         <label for="Nome"><b id="obrigatorio">*</b>Nome Completo:</label>
         <input
@@ -42,10 +42,10 @@
       </div>
       <div class="form-group col-sm-8">
         <label for="Sexo"><b id="obrigatorio">*</b>Sexo:</label>
-        <select class="form-control" id="sexo"  v-model="contatos.sexo">
-          <option>Selecione uma opção</option>
-          <option value="1">Masculino</option>
-          <option value="2">Feminino</option>
+         <select v-model="selected" class="form-control">
+          <option v-for="option in options" :value="option.value" :key="option.value" >
+          {{ option.text }}
+          </option>
         </select>
       </div>
       <br/>
@@ -62,13 +62,19 @@ export default {
   data(){
     return{
       message: "Editar contato",
-      id: window.location.href.split('/'),
+      id: this.$route.params.id,
       contatos: {
         nome:'',
         email:'',
         telefone:'',
         sexo:''
-      }
+      },
+       selected: "0",
+      options:[
+        {text: "Selecione uma opção", value: "0"},
+        {text: "Masculino", value: "1"},
+        {text: "Feminino", value: "2"}
+      ]
     }
   },
   created(){
@@ -77,8 +83,9 @@ export default {
   },
   mounted(){
        
-       this.contatosService.getId(this.id[4]).then(response =>{
+       this.contatosService.getId(this.id).then(response =>{
           this.contatos = response.data;
+          this.selected = response.data.sexo;
        })
     },
   props: {
@@ -86,10 +93,11 @@ export default {
   },
   methods:{
     Editar(){
-      this.contatosService.editar(this.id[4],this.contatos).then(response => {
+      this.contatosService.editar(this.id,this.contatos).then(response => {
           if(response.status === 200){
             alert("Contato Editado com sucesso!");
             this.$router.back(-1);
+            
           }
       })
     }
@@ -105,9 +113,11 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: left;
-  color: #2c3e50;
-   margin: 0 auto;
+  
+   
+  margin: 0 auto;
   margin-left: 17rem;
+  margin-right: 17rem;
   padding: 2rem;
 }
   
