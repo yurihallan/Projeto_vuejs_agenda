@@ -9,7 +9,7 @@
         
       </div>
     </div>
-    <form class="ContatosForm" @submit.prevent="salvar">
+    <form class="ContatosForm" @submit.prevent="Editar">
       <div class="form-group col-sm-8">
         <label for="Nome"><b id="obrigatorio">*</b>Nome Completo:</label>
         <input
@@ -41,7 +41,7 @@
         />
       </div>
       <div class="form-group col-sm-8">
-        <label for="Sexo"> <b id="obrigatorio">*</b>Sexo:</label>
+        <label for="Sexo"><b id="obrigatorio">*</b>Sexo:</label>
         <select class="form-control" id="sexo"  v-model="contatos.sexo">
           <option>Selecione uma opção</option>
           <option value="1">Masculino</option>
@@ -61,7 +61,8 @@ export default {
   name: "HelloWorld",
   data(){
     return{
-      message: "Novo contato",
+      message: "Editar contato",
+      id: window.location.href.split('/'),
       contatos: {
         nome:'',
         email:'',
@@ -72,32 +73,32 @@ export default {
   },
   created(){
         this.contatosService = new ContatosService();
+        
   },
+  mounted(){
+       
+       this.contatosService.getId(this.id[4]).then(response =>{
+          this.contatos = response.data;
+       })
+    },
   props: {
     msg: String,
   },
   methods:{
-    salvar(){
-      if(this.contatos.nome === '' || this.contatos.email === '' || this.contatos.telefone === '' || this.contatos.sexo === ''){
-        alert("Preencha os campos obrigatórios")  ;
-        return false;
-      }else{
-
-        this.contatosService.salvar(this.contatos).then(resposta => {
-            if(resposta.status === 200){
-              alert("Contato inserido com sucesso!");
-              this.$router.back(-1);
-            }
-        })
-      }
-
+    Editar(){
+      this.contatosService.editar(this.id[4],this.contatos).then(response => {
+          if(response.status === 200){
+            alert("Contato Editado com sucesso!");
+            this.$router.back(-1);
+          }
+      })
     }
   }
 };
 
 
 </script>
-
+<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .ContatosForm {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -105,13 +106,12 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: left;
   color: #2c3e50;
-  
-  margin: 0 auto;
+   margin: 0 auto;
   margin-left: 17rem;
   padding: 2rem;
 }
-
   
+
 #btnSalvar{
   margin-left: 28rem;
 }

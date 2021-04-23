@@ -29,7 +29,7 @@
                 <td>{{item.email}}</td>
                 <td>{{item.sexo == 1 ? 'Masculino' : 'Feminino'}}</td>
                 <td>{{item.telefone}}</td>
-                <td><button type="button" class="btn btn-warning">Editar</button></td>
+                <td><button type="button" class="btn btn-warning" @click.prevent="Editar(item.id)"> Editar </button></td>
                 <td><button type="button" class="btn btn-danger" @click.prevent="deletar(item.id)">Excluir</button></td>
             </tr>
 
@@ -44,11 +44,15 @@ export default {
     data(){
         return {
             message: 'Lista de Contato',
-            contatos: null
+            contatos: {
+                nome:'',
+                email:'',
+                telefone:'',
+                sexo:''
+            }
         }
     },
-    contatosService: null,
-    
+       
     created(){
         this.contatosService = new ContatosService();
     },
@@ -58,22 +62,30 @@ export default {
     methods: {
        
         getAll(){
-            this.contatosService.getAll().then(data => {
-            this.contatos = data.data;
-            
-             })
+            this.contatosService.getAll().then(response => {
+            this.contatos = response.data;
+            })
+
         },
 
         deletar:function(id){
-            console.log(id);
-            this.contatosService.delete(id).then(data =>{
-                if(data.status === 200){
-                    alert("Contato excluido com sucesso!");
-                }
-            }).catch(err => {
-                this.erro = 'Erro ao apagar - ' + err
-                alert(this.erro);
-            })
+            
+            if(confirm("Você tem certeza que deseja excluir esse registro?")){
+                this.contatosService.delete(id).then(response =>{
+                    if(response.status === 200){
+                        alert("Contato excluido com sucesso!");
+                         this.getAll();
+                    }
+                }).catch(err => {
+                    this.erro = 'Erro ao apagar - ' + err
+                    alert(this.erro);
+                })
+
+            }
+        },
+        Editar:function(id){
+            
+            this.$router.push("/ContatosFormEdit/"+id)
         }
     }
 };
